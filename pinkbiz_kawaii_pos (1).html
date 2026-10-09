@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinkBiz Kawaii POS</title>
+    <!-- Load the cute 'Mali' font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1e1e24; /* Dark charcoal background */
+            --card-bg: #2b2b36;  /* Slightly lighter charcoal for cards */
+            --primary: #ff85a2;  /* Kawaii pink */
+            --primary-hover: #ff6b8f;
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
+            --border-color: #3f3f4e;
+            --danger: #ff4757;
+            --success: #2ed573;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mali', cursive;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #app-view {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        header h2 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav {
+            display: flex;
+            background-color: var(--card-bg);
+            overflow-x: auto;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            padding: 15px;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 133, 162, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 133, 162, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background-color: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #ff2e43;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .pos-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .pos-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            align-content: start;
+        }
+
+        .menu-item-btn {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .menu-item-btn:hover {
+            border-color: var(--primary);
+            background-color: rgba(255, 133, 162, 0.1);
+            transform: scale(1.05);
+        }
+
+        .menu-item-btn .price {
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .cart-panel {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin: 15px 0;
+            border-top: 1px dashed var(--border-color);
+            border-bottom: 1px dashed var(--border-color);
+            padding: 10px 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .btn-dashed {
+            background: transparent;
+            border: 2px dashed var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-dashed:hover {
+            background: rgba(255, 133, 162, 0.1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid var(--primary);
+            position: relative;
+        }
+
+        .modal-title {
+            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .qr-display {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            border-radius: 15px;
+            margin: 15px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px dashed var(--primary);
+            color: #333;
+        }
+        
+        .qr-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .recipe-materials {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .recipe-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .qr-upload-btn {
+            background-color: var(--card-bg);
+            border: 2px dashed var(--primary);
+            color: var(--primary);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-view">
+        <header>
+            <h2><span data-i18n="appTitle">🌸 PinkBiz Kawaii POS</span></h2>
+            <div class="header-controls">
+                <span style="color: var(--text-muted); font-size: 14px;" data-i18n="localStore">(Local Storage)</span>
+                <button id="lang-toggle" onclick="toggleLanguage()" class="btn-secondary" style="width: auto; padding: 5px 15px; margin: 0; border-radius: 20px; font-size: 14px;">🇬🇧 EN</button>
+            </div>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('pos')" data-i18n="navPos">🛒 POS</button>
+            <button class="nav-btn" onclick="switchTab('costs')" data-i18n="navCosts">📦 Costs</button>
+            <button class="nav-btn" onclick="switchTab('menu')" data-i18n="navMenu">🍧 Menu Setup</button>
+            <button class="nav-btn" onclick="switchTab('reports')" data-i18n="navReports">📊 Reports</button>
+            <button class="nav-btn" onclick="switchTab('settings')" data-i18n="navSettings">⚙️ Settings</button>
+        </nav>
+
+        <!-- POS TAB -->
+        <div id="pos" class="tab-content active">
+            <div class="pos-container">
+                <div class="card">
+                    <h3 data-i18n="menuItemsTitle">Menu Items 🍰</h3>
+                    <div class="menu-grid" id="pos-menu-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                <div class="cart-panel">
+                    <h3 data-i18n="cartTitle">Cart 🛒</h3>
+                    <div class="cart-items" id="cart-items">
+                        <div style="text-align:center; color:var(--text-muted); margin-top:20px;" data-i18n="cartEmpty">Cart is empty</div>
+                    </div>
+                    <button class="btn-dashed" onclick="openAddonModal()" style="margin-bottom: 15px;" data-i18n="customAddon">+ Custom Add-on</button>
+                    <div class="cart-total" id="cart-total"><span data-i18n="totalText">Total</span>: 0 ฿</div>
+                    <button onclick="checkout()" data-i18n="checkout">Checkout</button>
+                    <button class="btn-danger" onclick="clearCart()" style="margin-top: 10px;" data-i18n="clearCart">Clear Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COSTS TAB -->
+        <div id="costs" class="tab-content">
+            <div class="card">
+                <h3 data-i18n="recordCosts">Record Raw Materials / Packaging 📦</h3>
+                <div class="input-group">
+                    <label data-i18n="type">Type</label>
+                    <select id="cost-type">
+                        <option value="raw" data-i18n="rawMat">Raw Material</option>
+                        <option value="pkg" data-i18n="pkg">Packaging</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="itemName">Item Name</label>
+                    <input type="text" id="cost-name" data-i18n-ph="phItemName" placeholder="e.g. Milk, Plastic Cup">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="input-group" style="flex:1;">
+                        <label data-i18n="qty">Quantity</label>
+                        <input type="number" id="cost-qty" placeholder="0">
+                    </div>
+                    <div class="input-group" style="flex:1;">
+                        <label data-i18n="unit">Unit</label>
+                        <select id="cost-unit">
+                            <option value="g" data-i18n="grams">Grams (g)</option>
+                            <option value="ml" data-i18n="ml">Milliliters (ml)</option>
+                            <option value="pcs" data-i18n="pcs">Pieces (pcs)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="totalPrice">Total Price (฿)</label>
+                    <input type="number" id="cost-price" placeholder="0">
+                </div>
+                <button onclick="addCost()" data-i18n="saveCost">Save Cost</button>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="purchaseHistory">Purchase History 📜</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-i18n="thDate">Date</th>
+                            <th data-i18n="thItem">Item</th>
+                            <th data-i18n="thQty">Qty</th>
+                            <th data-i18n="thPrice">Price</th>
+                            <th data-i18n="thCostUnit">Cost/Unit</th>
+                            <th data-i18n="thAction">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="costs-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MENU SETUP TAB -->
+        <div id="menu" class="tab-content">
+            <div class="card">
+                <h3 data-i18n="createMenu">Create New Menu Item 🍧</h3>
+                <div class="input-group">
+                    <label data-i18n="menuName">Menu Name</label>
+                    <input type="text" id="menu-name" data-i18n-ph="phMenuName" placeholder="e.g. Bubble Milk Tea">
+                </div>
+                <div class="input-group">
+                    <label data-i18n="sellingPrice">Selling Price (฿)</label>
+                    <input type="number" id="menu-price" placeholder="0">
+                </div>
+                
+                <h4 style="color:var(--primary); margin:15px 0 5px 0;" data-i18n="recipeTitle">Recipe (Per Serving)</h4>
+                <div id="recipe-container" class="recipe-materials">
+                    <!-- Dynamic recipe rows -->
+                </div>
+                <button class="btn-dashed" onclick="addRecipeRow()" style="margin-bottom:15px; margin-top:10px;" data-i18n="addIngredient">+ Add Ingredient</button>
+                
+                <button onclick="saveMenu()" data-i18n="saveMenu">Save Menu Item</button>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="menuList">Menu List 📋</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-i18n="thName">Name</th>
+                            <th data-i18n="thPrice">Price</th>
+                            <th data-i18n="thEstCost">Est. Cost</th>
+                            <th data-i18n="thProfit">Profit</th>
+                            <th data-i18n="thAction">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menu-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTS TAB -->
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <h3 data-i18n="salesSummary">Sales Summary 📊</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-i18n="thDateTime">Date/Time</th>
+                            <th data-i18n="thItemsSold">Items Sold</th>
+                            <th data-i18n="thRevenue">Revenue</th>
+                            <th data-i18n="thTotalCost">Total Cost</th>
+                            <th data-i18n="thProfit">Profit</th>
+                            <th data-i18n="thAction">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-table-body"></tbody>
+                </table>
+                <div style="margin-top:20px; padding-top:10px; border-top:2px dashed var(--border-color); text-align:right;">
+                    <h3 id="report-total-profit" style="color:var(--success);"><span data-i18n="totalProfitText">Total Profit</span>: 0 ฿</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3 data-i18n="qrSetup">Payment QR Code Setup 🏦</h3>
+                <p style="color:var(--text-muted); margin-bottom:15px;" data-i18n="qrDesc">Upload your bank or promptpay QR code to display during checkout.</p>
+                
+                <label class="qr-upload-btn">
+                    <input type="file" id="qr-upload" accept="image/*" style="display:none;" onchange="handleQRUpload(event)">
+                    <span data-i18n="uploadQrBtn">📸 Click to Upload QR Image</span>
+                </label>
+
+                <div class="qr-display" id="settings-qr-preview" data-i18n="noImage">
+                    No Image
+                </div>
+                
+                <button onclick="removeQRCode()" class="btn-danger" style="margin-top:15px;" data-i18n="removeQr">Remove QR Code</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM MODALS -->
+    
+    <!-- Generic Alert Modal -->
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title" id="alert-title" data-i18n="alertTitle">Alert</h3>
+            <p id="alert-message" style="margin-bottom: 20px;"></p>
+            <button onclick="closeModal('alert-modal')" data-i18n="okBtn">OK</button>
+        </div>
+    </div>
+
+    <!-- Add-on Modal -->
+    <div id="addon-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title" data-i18n="addonTitle">Custom Add-on</h3>
+            <div class="input-group">
+                <label data-i18n="addonNameLabel">Add-on Name</label>
+                <input type="text" id="addon-name" data-i18n-ph="phAddonName" placeholder="e.g. Extra Boba, Special Cup">
+            </div>
+            <div class="input-group">
+                <label data-i18n="priceLabel">Price (฿)</label>
+                <input type="number" id="addon-price" placeholder="0">
+            </div>
+            <button onclick="addCustomAddon()" data-i18n="addToCart">Add to Cart</button>
+            <button class="btn-secondary" onclick="closeModal('addon-modal')" data-i18n="cancelBtn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title" data-i18n="checkoutTitle">Checkout</h3>
+            <h2 id="checkout-total" style="color:var(--success); margin-bottom:15px;"><span data-i18n="totalText">Total</span>: 0 ฿</h2>
+            
+            <div class="qr-display" id="checkout-qr-display">
+                <!-- QR Image loaded here -->
+            </div>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" data-i18n="scanToPay">Scan to Pay</p>
+            
+            <button onclick="confirmSale()" style="background-color: var(--success);" data-i18n="confirmPayment">Confirm Payment Received</button>
+            <button class="btn-danger" onclick="closeModal('checkout-modal')" data-i18n="cancelBtn">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATIONS (i18n) ---
+        const i18n = {
+            en: {
+                appTitle: "🌸 PinkBiz Kawaii POS",
+                localStore: "(Local Storage)",
+                btnLang: "🇹🇭 TH",
+                navPos: "🛒 POS",
+                navCosts: "📦 Costs",
+                navMenu: "🍧 Menu Setup",
+                navReports: "📊 Reports",
+                navSettings: "⚙️ Settings",
+                menuItemsTitle: "Menu Items 🍰",
+                cartTitle: "Cart 🛒",
+                cartEmpty: "Cart is empty",
+                customAddon: "+ Custom Add-on",
+                checkout: "Checkout",
+                clearCart: "Clear Cart",
+                recordCosts: "Record Raw Materials / Packaging 📦",
+                type: "Type",
+                rawMat: "Raw Material",
+                pkg: "Packaging",
+                itemName: "Item Name",
+                qty: "Quantity",
+                unit: "Unit",
+                grams: "Grams (g)",
+                ml: "Milliliters (ml)",
+                pcs: "Pieces (pcs)",
+                totalPrice: "Total Price (฿)",
+                saveCost: "Save Cost",
+                purchaseHistory: "Purchase History 📜",
+                thDate: "Date",
+                thItem: "Item",
+                thQty: "Qty",
+                thPrice: "Price",
+                thCostUnit: "Cost/Unit",
+                thAction: "Action",
+                createMenu: "Create New Menu Item 🍧",
+                menuName: "Menu Name",
+                sellingPrice: "Selling Price (฿)",
+                recipeTitle: "Recipe (Per Serving)",
+                addIngredient: "+ Add Ingredient",
+                saveMenu: "Save Menu Item",
+                menuList: "Menu List 📋",
+                thName: "Name",
+                thEstCost: "Est. Cost",
+                thProfit: "Profit",
+                salesSummary: "Sales Summary 📊",
+                thDateTime: "Date/Time",
+                thItemsSold: "Items Sold",
+                thRevenue: "Revenue",
+                thTotalCost: "Total Cost",
+                qrSetup: "Payment QR Code Setup 🏦",
+                qrDesc: "Upload your bank or promptpay QR code to display during checkout.",
+                uploadQrBtn: "📸 Click to Upload QR Image",
+                noImage: "No Image",
+                removeQr: "Remove QR Code",
+                alertTitle: "Alert",
+                okBtn: "OK",
+                addonTitle: "Custom Add-on",
+                addonNameLabel: "Add-on Name",
+                priceLabel: "Price (฿)",
+                addToCart: "Add to Cart",
+                cancelBtn: "Cancel",
+                checkoutTitle: "Checkout",
+                scanToPay: "Scan to Pay",
+                confirmPayment: "Confirm Payment Received",
+                noQrSetup: "No QR Code<br>Setup in Settings",
+                phItemName: "e.g. Milk, Plastic Cup",
+                phMenuName: "e.g. Bubble Milk Tea",
+                phAddonName: "e.g. Extra Boba, Special Cup",
+                selectIngredient: "-- Select Ingredient --",
+                qtyUsed: "Qty used",
+                delBtn: "Del",
+                errFillCosts: "Please fill in all cost details.",
+                succCostSaved: "Cost recorded successfully!",
+                succCostDel: "Cost record deleted.",
+                errMenuDetails: "Please enter menu name and price.",
+                succMenuSaved: "Menu saved successfully!",
+                succMenuDel: "Menu item deleted.",
+                errAddonDetails: "Please enter addon details.",
+                errEmptyCart: "Cart is empty!",
+                succSaleRecorded: "Sale recorded successfully!",
+                succSaleDel: "Sales record deleted.",
+                succQrUploaded: "QR Code uploaded successfully!",
+                succQrDel: "QR Code removed.",
+                successTitle: "Success 💖",
+                thankYouTitle: "Thank You 💖",
+                totalText: "Total",
+                totalProfitText: "Total Profit"
+            },
+            th: {
+                appTitle: "🌸 พิงค์บิซ POS",
+                localStore: "(เก็บข้อมูลในเครื่อง)",
+                btnLang: "🇬🇧 EN",
+                navPos: "🛒 ขายหน้าร้าน",
+                navCosts: "📦 ต้นทุน",
+                navMenu: "🍧 จัดการเมนู",
+                navReports: "📊 รายงาน",
+                navSettings: "⚙️ ตั้งค่า",
+                menuItemsTitle: "รายการเมนู 🍰",
+                cartTitle: "ตะกร้าสินค้า 🛒",
+                cartEmpty: "ตะกร้าว่างเปล่า",
+                customAddon: "+ เพิ่มรายการพิเศษ",
+                checkout: "ชำระเงิน",
+                clearCart: "ล้างตะกร้า",
+                recordCosts: "บันทึกวัตถุดิบ / บรรจุภัณฑ์ 📦",
+                type: "ประเภท",
+                rawMat: "วัตถุดิบ",
+                pkg: "บรรจุภัณฑ์",
+                itemName: "ชื่อรายการ",
+                qty: "จำนวน",
+                unit: "หน่วย",
+                grams: "กรัม (g)",
+                ml: "มิลลิลิตร (ml)",
+                pcs: "ชิ้น (pcs)",
+                totalPrice: "ราคารวม (฿)",
+                saveCost: "บันทึกต้นทุน",
+                purchaseHistory: "ประวัติการซื้อ 📜",
+                thDate: "วันที่",
+                thItem: "รายการ",
+                thQty: "จำนวน",
+                thPrice: "ราคา",
+                thCostUnit: "ต้นทุน/หน่วย",
+                thAction: "จัดการ",
+                createMenu: "สร้างเมนูใหม่ 🍧",
+                menuName: "ชื่อเมนู",
+                sellingPrice: "ราคาขาย (฿)",
+                recipeTitle: "สูตร (ต่อ 1 เสิร์ฟ)",
+                addIngredient: "+ เพิ่มส่วนผสม",
+                saveMenu: "บันทึกเมนู",
+                menuList: "รายการเมนู 📋",
+                thName: "ชื่อ",
+                thEstCost: "ต้นทุนประเมิน",
+                thProfit: "กำไร",
+                salesSummary: "สรุปยอดขาย 📊",
+                thDateTime: "วัน/เวลา",
+                thItemsSold: "รายการที่ขาย",
+                thRevenue: "รายรับ",
+                thTotalCost: "ต้นทุนรวม",
+                qrSetup: "ตั้งค่า QR Code รับเงิน 🏦",
+                qrDesc: "อัปโหลดภาพ QR Code ธนาคารหรือพร้อมเพย์เพื่อแสดงตอนชำระเงิน",
+                uploadQrBtn: "📸 คลิกเพื่ออัปโหลดภาพ QR",
+                noImage: "ไม่มีรูปภาพ",
+                removeQr: "ลบ QR Code",
+                alertTitle: "แจ้งเตือน",
+                okBtn: "ตกลง",
+                addonTitle: "เพิ่มรายการพิเศษ",
+                addonNameLabel: "ชื่อรายการพิเศษ",
+                priceLabel: "ราคา (฿)",
+                addToCart: "เพิ่มลงตะกร้า",
+                cancelBtn: "ยกเลิก",
+                checkoutTitle: "ชำระเงิน",
+                scanToPay: "สแกนเพื่อจ่าย",
+                confirmPayment: "ยืนยันรับเงินแล้ว",
+                noQrSetup: "ยังไม่ได้ตั้งค่า<br>QR Code",
+                phItemName: "เช่น นมสด, แก้วพลาสติก",
+                phMenuName: "เช่น ชานมไข่มุก",
+                phAddonName: "เช่น เพิ่มไข่มุก, แก้วพิเศษ",
+                selectIngredient: "-- เลือกส่วนผสม --",
+                qtyUsed: "จำนวนที่ใช้",
+                delBtn: "ลบ",
+                errFillCosts: "กรุณากรอกข้อมูลต้นทุนให้ครบถ้วน",
+                succCostSaved: "บันทึกต้นทุนเรียบร้อยแล้ว!",
+                succCostDel: "ลบรายการต้นทุนแล้ว",
+                errMenuDetails: "กรุณากรอกชื่อเมนูและราคา",
+                succMenuSaved: "บันทึกเมนูเรียบร้อยแล้ว!",
+                succMenuDel: "ลบรายการเมนูแล้ว",
+                errAddonDetails: "กรุณากรอกรายละเอียดรายการพิเศษ",
+                errEmptyCart: "ตะกร้าว่างเปล่า!",
+                succSaleRecorded: "บันทึกการขายเรียบร้อยแล้ว!",
+                succSaleDel: "ลบรายการขายแล้ว",
+                succQrUploaded: "อัปโหลด QR Code เรียบร้อยแล้ว!",
+                succQrDel: "ลบ QR Code แล้ว",
+                successTitle: "สำเร็จ 💖",
+                thankYouTitle: "ขอบคุณค่ะ 💖",
+                totalText: "รวม",
+                totalProfitText: "กำไรสุทธิ"
+            }
+        };
+
+        // --- DATA STATE ---
+        const STORAGE_KEY = 'pinkbiz_local_data';
+        const LANG_KEY = 'pinkbiz_lang';
+        
+        let currentLang = localStorage.getItem(LANG_KEY) || 'th';
+        
+        let userData = {
+            costs: [],
+            menus: [],
+            sales: [],
+            qrCodeBase64: null
+        };
+        let cart = [];
+
+        function t(key) {
+            return i18n[currentLang][key] || key;
+        }
+
+        // Initialize application
+        window.onload = () => {
+            loadUserData();
+            applyTranslations();
+            updateAllViews();
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'th' ? 'en' : 'th';
+            localStorage.setItem(LANG_KEY, currentLang);
+            applyTranslations();
+            updateAllViews(); // Re-render dynamic text
+        }
+
+        function applyTranslations() {
+            // Update static elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(i18n[currentLang][key]) {
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+
+            // Update placeholders with data-i18n-ph
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if(i18n[currentLang][key]) {
+                    el.placeholder = i18n[currentLang][key];
+                }
+            });
+
+            // Update Language Toggle Button text
+            document.getElementById('lang-toggle').innerText = i18n[currentLang].btnLang;
+            
+            // Re-render select options dynamically created if any
+            prepareRecipeDropdowns(true); 
+        }
+
+        function loadUserData() {
+            let data = localStorage.getItem(STORAGE_KEY);
+            if(data) {
+                userData = JSON.parse(data);
+                if(!userData.costs) userData.costs = [];
+                if(!userData.menus) userData.menus = [];
+                if(!userData.sales) userData.sales = [];
+            }
+        }
+
+        function saveUserData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+            updateAllViews();
+        }
+
+        // --- UI & TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            if(tabId === 'menu') prepareRecipeDropdowns();
+        }
+
+        function showAlert(msgKey, titleKey="alertTitle") {
+            document.getElementById('alert-title').innerText = t(titleKey);
+            document.getElementById('alert-message').innerText = t(msgKey);
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- COSTS LOGIC ---
+        function addCost() {
+            const type = document.getElementById('cost-type').value;
+            const name = document.getElementById('cost-name').value.trim();
+            const qty = parseFloat(document.getElementById('cost-qty').value);
+            const unit = document.getElementById('cost-unit').value;
+            const price = parseFloat(document.getElementById('cost-price').value);
+
+            if(!name || !qty || !price) return showAlert("errFillCosts");
+
+            const costPerUnit = price / qty;
+
+            userData.costs.push({
+                id: Date.now().toString(),
+                date: new Date().toLocaleDateString(),
+                type, name, qty, unit, price, costPerUnit
+            });
+
+            // Reset form
+            document.getElementById('cost-name').value = '';
+            document.getElementById('cost-qty').value = '';
+            document.getElementById('cost-price').value = '';
+            
+            saveUserData();
+            showAlert("succCostSaved", "successTitle");
+        }
+
+        function deleteCost(id) {
+            userData.costs = userData.costs.filter(c => c.id !== id);
+            saveUserData();
+            showAlert("succCostDel");
+        }
+
+        function getAverageCost(materialName) {
+            let purchases = userData.costs.filter(c => c.name === materialName);
+            if(purchases.length === 0) return 0;
+            
+            let totalCost = 0;
+            let totalQty = 0;
+            purchases.forEach(p => {
+                totalCost += p.price;
+                totalQty += p.qty;
+            });
+            return totalCost / totalQty;
+        }
+
+        // --- MENU LOGIC ---
+        function addRecipeRow(savedMat="", savedQty="") {
+            const container = document.getElementById('recipe-container');
+            const row = document.createElement('div');
+            row.className = 'recipe-row';
+            
+            let options = `<option value="">${t('selectIngredient')}</option>`;
+            let uniqueMats = [...new Set(userData.costs.map(c => c.name))];
+            uniqueMats.forEach(m => {
+                options += `<option value="${m}" ${m === savedMat ? 'selected' : ''}>${m}</option>`;
+            });
+
+            row.innerHTML = `
+                <select class="recipe-mat" style="flex:2">${options}</select>
+                <input type="number" class="recipe-qty" placeholder="${t('qtyUsed')}" value="${savedQty}" style="flex:1">
+                <button class="btn-danger" onclick="this.parentElement.remove()" style="flex:0.5; margin-top:0; padding: 10px;">${t('delBtn')}</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function prepareRecipeDropdowns(forceRebuild = false) {
+            const container = document.getElementById('recipe-container');
+            if(container.children.length === 0) {
+                addRecipeRow();
+            } else if (forceRebuild) {
+                // Save state and rebuild for translation change
+                let states = [];
+                document.querySelectorAll('.recipe-row').forEach(row => {
+                    states.push({
+                        mat: row.querySelector('.recipe-mat').value,
+                        qty: row.querySelector('.recipe-qty').value
+                    });
+                });
+                container.innerHTML = '';
+                states.forEach(s => addRecipeRow(s.mat, s.qty));
+            }
+        }
+
+        function saveMenu() {
+            const name = document.getElementById('menu-name').value.trim();
+            const price = parseFloat(document.getElementById('menu-price').value);
+            
+            if(!name || !price) return showAlert("errMenuDetails");
+
+            let recipe = [];
+            let estCost = 0;
+            
+            const rows = document.querySelectorAll('.recipe-row');
+            rows.forEach(row => {
+                const mat = row.querySelector('.recipe-mat').value;
+                const qty = parseFloat(row.querySelector('.recipe-qty').value);
+                
+                if(mat && qty) {
+                    let avgCost = getAverageCost(mat);
+                    recipe.push({ name: mat, qty: qty, costPerUnit: avgCost });
+                    estCost += (avgCost * qty);
+                }
+            });
+
+            userData.menus.push({
+                id: Date.now().toString(),
+                name, price, recipe, estCost
+            });
+
+            document.getElementById('menu-name').value = '';
+            document.getElementById('menu-price').value = '';
+            document.getElementById('recipe-container').innerHTML = '';
+            addRecipeRow();
+
+            saveUserData();
+            showAlert("succMenuSaved", "successTitle");
+        }
+
+        function deleteMenu(id) {
+            userData.menus = userData.menus.filter(m => m.id !== id);
+            saveUserData();
+            showAlert("succMenuDel");
+        }
+
+        // --- POS & CART LOGIC ---
+        function addToCart(menuId) {
+            const menu = userData.menus.find(m => m.id === menuId);
+            if(menu) {
+                cart.push({
+                    id: Date.now() + Math.random(),
+                    type: 'menu',
+                    name: menu.name,
+                    price: menu.price,
+                    cost: menu.estCost
+                });
+                renderCart();
+            }
+        }
+
+        function openAddonModal() {
+            document.getElementById('addon-name').value = '';
+            document.getElementById('addon-price').value = '';
+            document.getElementById('addon-modal').style.display = 'flex';
+        }
+
+        function addCustomAddon() {
+            const name = document.getElementById('addon-name').value.trim();
+            const price = parseFloat(document.getElementById('addon-price').value);
+            
+            if(!name || isNaN(price)) return showAlert("errAddonDetails");
+
+            cart.push({
+                id: Date.now() + Math.random(),
+                type: 'addon',
+                name: "+ " + name,
+                price: price,
+                cost: 0 
+            });
+            
+            closeModal('addon-modal');
+            renderCart();
+        }
+
+        function removeCartItem(id) {
+            cart = cart.filter(item => item.id !== id);
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let total = 0;
+
+            if(cart.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:20px;">${t('cartEmpty')}</div>`;
+            } else {
+                cart.forEach((item) => {
+                    total += item.price;
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <div style="font-weight:bold;">${item.name}</div>
+                                <div style="color:var(--success); font-size:12px;">${item.price} ฿</div>
+                            </div>
+                            <button class="btn-danger" style="width:auto; padding:5px 10px; margin:0;" onclick="removeCartItem(${item.id})">X</button>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('cart-total').innerHTML = `<span data-i18n="totalText">${t('totalText')}</span>: ${total} ฿`;
+        }
+
+        function checkout() {
+            if(cart.length === 0) return showAlert("errEmptyCart");
+            
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('checkout-total').innerHTML = `<span data-i18n="totalText">${t('totalText')}</span>: ${total} ฿`;
+            
+            const qrDisplay = document.getElementById('checkout-qr-display');
+            if(userData.qrCodeBase64) {
+                qrDisplay.innerHTML = `<img src="${userData.qrCodeBase64}" alt="QR Code">`;
+            } else {
+                qrDisplay.innerHTML = `<div style="color:#aaa; text-align:center; padding:20px;">${t('noQrSetup')}</div>`;
+            }
+
+            document.getElementById('checkout-modal').style.display = 'flex';
+        }
+
+        function confirmSale() {
+            let totalSale = 0;
+            let totalCost = 0;
+            let itemsSummary = [];
+
+            cart.forEach(item => {
+                totalSale += item.price;
+                totalCost += item.cost;
+                itemsSummary.push(item.name);
+            });
+
+            userData.sales.push({
+                id: Date.now().toString(),
+                date: new Date().toLocaleString(),
+                items: itemsSummary.join(', '),
+                revenue: totalSale,
+                cost: totalCost,
+                profit: totalSale - totalCost
+            });
+
+            cart = [];
+            saveUserData();
+            closeModal('checkout-modal');
+            showAlert("succSaleRecorded", "thankYouTitle");
+        }
+
+        function deleteSale(id) {
+            userData.sales = userData.sales.filter(s => s.id !== id);
+            saveUserData();
+            showAlert("succSaleDel");
+        }
+
+        // --- SETTINGS (QR CODE) ---
+        function handleQRUpload(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userData.qrCodeBase64 = e.target.result;
+                    saveUserData();
+                    showAlert("succQrUploaded", "successTitle");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeQRCode() {
+            userData.qrCodeBase64 = null;
+            saveUserData();
+            showAlert("succQrDel");
+        }
+
+        // --- UPDATE VIEWS ---
+        function updateAllViews() {
+            const delTxt = t('delBtn');
+
+            // Update Costs Table
+            const costsTbody = document.getElementById('costs-table-body');
+            costsTbody.innerHTML = userData.costs.map(c => `
+                <tr>
+                    <td>${c.date.split(',')[0]}</td>
+                    <td>${c.name}</td>
+                    <td>${c.qty} ${c.unit}</td>
+                    <td>${c.price} ฿</td>
+                    <td>${c.costPerUnit.toFixed(2)} ฿/${c.unit}</td>
+                    <td><button class="btn-danger" style="padding:5px; margin:0;" onclick="deleteCost('${c.id}')">${delTxt}</button></td>
+                </tr>
+            `).join('');
+
+            // Update Menu Table & POS Grid
+            const menuTbody = document.getElementById('menu-table-body');
+            const posGrid = document.getElementById('pos-menu-grid');
+            
+            menuTbody.innerHTML = '';
+            posGrid.innerHTML = '';
+
+            userData.menus.forEach(m => {
+                let profit = m.price - m.estCost;
+                menuTbody.innerHTML += `
+                    <tr>
+                        <td>${m.name}</td>
+                        <td>${m.price} ฿</td>
+                        <td>${m.estCost.toFixed(2)} ฿</td>
+                        <td style="color:${profit>0?'var(--success)':'var(--danger)'}">${profit.toFixed(2)} ฿</td>
+                        <td><button class="btn-danger" style="padding:5px; margin:0;" onclick="deleteMenu('${m.id}')">${delTxt}</button></td>
+                    </tr>
+                `;
+                posGrid.innerHTML += `
+                    <div class="menu-item-btn" onclick="addToCart('${m.id}')">
+                        <div style="font-size:1.2em; font-weight:bold;">${m.name}</div>
+                        <div class="price">${m.price} ฿</div>
+                    </div>
+                `;
+            });
+
+            // Update Reports Table
+            const salesTbody = document.getElementById('sales-table-body');
+            let grandProfit = 0;
+            salesTbody.innerHTML = userData.sales.map(s => {
+                grandProfit += s.profit;
+                return `
+                <tr>
+                    <td style="font-size:12px;">${s.date}</td>
+                    <td>${s.items}</td>
+                    <td style="color:var(--success);">${s.revenue} ฿</td>
+                    <td style="color:var(--danger);">${s.cost.toFixed(2)} ฿</td>
+                    <td style="font-weight:bold;">${s.profit.toFixed(2)} ฿</td>
+                    <td><button class="btn-danger" style="padding:5px; margin:0;" onclick="deleteSale('${s.id}')">${delTxt}</button></td>
+                </tr>
+            `}).join('');
+            
+            document.getElementById('report-total-profit').innerHTML = `<span data-i18n="totalProfitText">${t('totalProfitText')}</span>: ${grandProfit.toFixed(2)} ฿`;
+
+            // Update Settings QR Preview
+            const qrPreview = document.getElementById('settings-qr-preview');
+            if(userData.qrCodeBase64) {
+                qrPreview.innerHTML = `<img src="${userData.qrCodeBase64}" alt="QR Code">`;
+            } else {
+                qrPreview.innerHTML = t('noImage');
+            }
+
+            renderCart();
+        }
+    </script>
+</body>
+</html>
